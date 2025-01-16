@@ -1,9 +1,13 @@
 "use client";
 import FormField from "@/components/formField";
 import {useState} from "react"
-import axios from "axios";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 
 export default function LoginPage() {
+    const router = useRouter();
+    const { update } = useSession();
     const [user, setUser] = useState({
         
             username: "",
@@ -12,21 +16,33 @@ export default function LoginPage() {
     })
     const formValidation = () => {
         if (user.username === "" || user.password === "") {
-            alert("Please fill all the fields");
+            toast.error("Please fill all the fields");
             return false;
         }
         return true;
     }
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (formValidation() === true) {
-            axios.post("/api/login", user)
-            .then(res => {
-                console.log(res.data);
-            })
-            .catch(err => {
-                console.log(err);
-            })
+            try {
+                const response = await signIn("credentials", {
+                    redirect: false, // Prevent automatic redirection
+                    username: user.username, // Replace with user input
+                    password: user.password,   // Replace with user input
+                });
+        
+                if (!response?.error) {
+                    await update(); // Update the session to reflect the signed-in user
+                    toast.success("Login Successful");
+                    router.push("/");
+                } else {
+                    toast.error("Invalid Credentials");
+                    console.log("Sign-in failed:", response?.error);
+                }
+            } catch (error) {
+                console.error("Unexpected error:", error);
+                toast.error("An unexpected error occurred. Please try again.");
+            }
         }
     }
 
@@ -68,7 +84,9 @@ export default function LoginPage() {
                         <img src="images/facebookIcon.png" alt=""/>
                         </div>
                     </div>
-                    <p>Don’t have an account? <span>Sign up</span></p>
+                    <p>Don’t have an account? <span
+                        onClick={() => router.push("/signup")}
+                    >Sign up</span></p>
                 </form>
             </div>
         </div>

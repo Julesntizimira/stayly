@@ -1,7 +1,8 @@
 "use client";
 
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // import { useRouter } from "next/navigation";
 
@@ -23,6 +24,14 @@ export default function UserAccountLayout({
             router.push(path); // Navigate only if not already on the target route
         }
     };
+
+    const { data: session, status } = useSession();
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.push("/login");
+        }
+    }, [status, router]);
 
     return (
         <div className="host-dashboard-wrapper">
@@ -132,7 +141,11 @@ export default function UserAccountLayout({
                             </svg>
                             Settings
                         </li>
-                        <li>
+                        <li
+                            onClick={async () => {
+                                await signOut();
+                            }}
+                        >
                             <svg width="15" height="17" viewBox="0 0 15 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9.39941 5.99316V2.86816C9.39941 1.83263 8.64389 0.993164 7.71191 0.993164L3.21191 0.993164C2.27993 0.993164 1.52441 1.83263 1.52441 2.86816L1.52441 14.1182C1.52441 15.1537 2.27993 15.9932 3.21191 15.9932H7.71191C8.64389 15.9932 9.39941 15.1537 9.39941 14.1182V10.9932M6.58692 5.99317L4.33691 8.49316M4.33691 8.49316L6.58691 10.9932M4.33691 8.49316L13.8994 8.49317" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
@@ -155,9 +168,9 @@ export default function UserAccountLayout({
                         </div>
                         <div className="dashboard-profile-info">
                             <div className="profile-avatar">
-                                <img src="images/profile-avatar.jpg" alt="" />
+                                <img src={session?.user?.image ? session.user.image : "/images/profile-avatar.jpg"} alt="" />
                             </div>
-                            <p className="user-name-links">Harsh</p>
+                            <p className="user-name-links">{session?.user?.name?.split(" ")[0]}</p>
                             <i className="fa-solid fa-angle-down"></i>
                         </div>
                     </div>

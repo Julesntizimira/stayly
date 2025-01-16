@@ -1,5 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Profile } from "@/types";
 
 export default function UserAccountLayout({
     children,
@@ -7,7 +11,43 @@ export default function UserAccountLayout({
     children: React.ReactNode;
 }>) {
 
+    const signout = async () => {
+        await signOut();
+    };
+
     const router = useRouter();
+    const { data: session, status } = useSession();
+
+    const [user, setUser] = useState<null | Profile>(null);
+    useEffect(() => {
+        if (status === "loading") {
+            // Loading state, you can show a loader here if needed
+            return;
+        }
+
+        if (status === "unauthenticated") {
+            router.push("/login");
+            return;
+        }
+
+        if (status === "authenticated" && session?.user?.id) {
+            axios.post("/api/users/getUser", { id: session?.user?.id }).then((response) => {
+                setUser(response.data);
+            }).catch((error) => {
+                console.error("Error fetching user data", error);
+                signOut({ redirectTo: "/login" });
+            });
+        }
+    }, [status, session?.user?.id, router]);
+
+    if (status === "loading") return <div>Loading...</div>;
+
+    if (status === "unauthenticated") {
+        return <div>unauthenticated</div>;
+    }
+
+
+
 
     const handleNavigation = (path: string) => {
         if (window.location.pathname !== path) {
@@ -20,9 +60,9 @@ export default function UserAccountLayout({
             <div className="user-account-left-side">
                 <div className="welcome-header">
                     <h2>
-                        Hi, Benjamin
+                        Hi, {user?.name?.split(" ")[0]}
                     </h2>
-                    <p>Joelbenjamin@gmail.com</p>
+                    <p>{user?.email}</p>
                 </div>
                 <p>
                     Manage your profile, rewards, and preferences for all our brands in one place.
@@ -63,7 +103,9 @@ export default function UserAccountLayout({
                         Settings
                         <i className="fa-solid fa-angle-right link-caret"></i>
                     </li>
-                    <li>
+                    <li
+                        onClick={signout}
+                    >
                         <i className="fa-solid fa-right-from-bracket"></i>
                         Logout
                         <i className="fa-solid fa-angle-right link-caret"></i>

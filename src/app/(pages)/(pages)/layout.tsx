@@ -1,5 +1,6 @@
 import Footer from "@/components/footer";
 import Header from "@/components/header";
+import HorizontalDivider from "@/components/horizontalDivider";
 
 export default function HomeLayout({
   children,
@@ -14,6 +15,7 @@ export default function HomeLayout({
       <main>
         {children}
       </main>
+      <HorizontalDivider />
       <Footer />
     </>
   );

@@ -1,6 +1,5 @@
 import Calendar from "@/components/calendar";
 import HorizontalDivider from "@/components/horizontalDivider";
-import PropertyListing from "@/components/propertyList";
 import SearchCard from "@/components/searchCard";
 import { featuredProperties } from "@/utils";
 
@@ -314,8 +313,6 @@ export default function PropertyDetails() {
                     }
                 </div>
             </section>
-            <HorizontalDivider />
-            <PropertyListing />
         </>
     )
 }

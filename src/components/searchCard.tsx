@@ -1,24 +1,14 @@
 "use client";
+import { PropertyType } from "@/types";
 import { useRouter } from "next/navigation";
 
 interface SearchCardProps {
-    container: {
-        location: string;
-        price: string;
-        features: {
-            beds: string;
-            bath: string;
-            area: string;
-        };
-        rating: string;
-        distance: string;
-        imageUrl: string;
-    };
+    container: PropertyType
 }
 
 export default function SearchCard(props: SearchCardProps) {
 
-    const {location, price, features, rating, distance, imageUrl} = props.container
+    const property = props.container
 
     const router = useRouter()
     return (
@@ -26,26 +16,28 @@ export default function SearchCard(props: SearchCardProps) {
             () => router.push("/propertyDetails")
         }>
             <div className="card-img-cont">
-                <img src={imageUrl} alt="card-img" />
+                {property.image_urls && Array.isArray(property.image_urls) && property.image_urls.length > 0 && (
+                    <img src={property.image_urls[0]} alt="card-img" />
+                )}
             </div>
             <div className="card-content">
-                <p className="prop-title">{location}</p>
-                <p className="prop-distance">{distance} km away</p>
+                <p className="prop-title">{["hotel", "lodge", "apartment"].includes(property.type) || property.type === "Apartment" ? property.title : property.location}</p>
+                <p className="prop-distance">{1500} km away</p>
                 <div className="property-features">
                     <p>
-                        <i className="fa-solid fa-bed"></i> {features.beds} bed
+                        <i className="fa-solid fa-bed"></i> {3} bed
                     </p>
                     <p>
-                        <i className="fa-solid fa-bath"></i> {features.bath} bath
+                        <i className="fa-solid fa-bath"></i> {4} bath
                     </p>
                     <p>
-                        <i className="fa-solid fa-bed"></i> {features.area} sqft
+                        <i className="fa-solid fa-bed"></i> {2880} sqft
                     </p>
                 </div>
-                <p className="property-price">${price} <span className="night">night</span></p>
+                <p className="property-price">${property.price_per_night} <span className="night">night</span></p>
                 <p className="prop-rates">
                     <i className="fa-solid fa-star"></i>
-                    <span>{rating}</span>
+                    <span>{4.5}</span>
                 </p>
             </div>
 

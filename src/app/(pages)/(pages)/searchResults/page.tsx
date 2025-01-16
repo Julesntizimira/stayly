@@ -2,11 +2,24 @@
 import { searchFilters, searchCards } from "@/utils";
 import Filter from "@/components/filter";
 import SearchCard from "@/components/searchCard";
-import HorizontalDivider from "@/components/horizontalDivider";
-import PropertyListing from "@/components/propertyList";
+import { useEffect, useState } from "react";
+import { PropertyType } from "@/types";
+import axios from "axios";
+
 
 export default function SearchResults() {
-  
+  const [allProperties, setAllProperties] = useState<PropertyType[]>([]);
+
+
+  useEffect(() => {
+    axios.get("/api/properties/allProperties").then((res) => {
+        console.log(res.data);
+        setAllProperties(res.data);
+    }).catch((err) => {
+        console.log(err);
+    });
+}, []);
+
   return (
     <>
       <section className="explore">
@@ -121,20 +134,18 @@ export default function SearchResults() {
             </div>
 
             {searchFilters.map((filter, index) => (
-               <Filter key={index} filter={filter}/>
-              ))}
+              <Filter key={index} filter={filter} />
+            ))}
           </div>
           <div className="searched-main-content">
             {
-              searchCards.map((container, index) => (
-                <SearchCard key={index} container={container}/>
+              allProperties.map((container, index) => (
+                <SearchCard key={index} container={container} />
               ))
             }
           </div>
         </div>
       </div>
-      <HorizontalDivider/>
-      <PropertyListing/>
     </>
   );
 }
